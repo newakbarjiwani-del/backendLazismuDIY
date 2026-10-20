@@ -65,6 +65,8 @@ Route::put('/campaign/unset-active/{id}', [CampaignController::class, 'setActive
 // qris
 Route::post('/billing/create/{categoryType}/{id}', [BillingController::class, 'createBilling']);
 Route::post('/billing/createBillingFLIP/{categoryType}/{id}', [BillingController::class, 'createBillingFLIP']);
+Route::post('/billingBCA/createVA/{categoryType}/{id}', [BillingController::class, 'createBCABilling']);
+Route::match(['get', 'post'], '/push-notification-bca', [QrisController::class, 'pushNotificationVaBCA']);
 Route::get('/generate-qris', [QrisController::class, 'generate']);
 Route::get('/check-status', [QrisController::class, 'checkStatus']);
 Route::get('/push-notification', [QrisController::class, 'pushNotification']);

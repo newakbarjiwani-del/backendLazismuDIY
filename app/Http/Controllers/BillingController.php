@@ -6,6 +6,7 @@ use App\Helpers\JWT;
 use App\Helpers\Logger;
 use App\Models\Billing;
 use App\Models\Campaign;
+use App\Models\Fundraiser;
 use App\Models\Infak;
 use App\Models\Wakaf;
 use App\Models\Zakat;
@@ -131,6 +132,10 @@ class BillingController extends Controller
 
         default:
             return response()->json(['error' => 'Invalid transaction type: ' . $categoryType], 400);
+    }
+
+    if ($categoryType === 'campaign') {
+        $billing->fundraiser_id = Fundraiser::idFromCode($request->input('fundraiser_code'));
     }
 
     do {
@@ -439,6 +444,10 @@ public function sendReminder($id)
 
         default:
             return response()->json(['error' => 'Invalid transaction type: ' . $categoryType], 400);
+    }
+
+    if ($categoryType === 'campaign') {
+        $billing->fundraiser_id = Fundraiser::idFromCode($request->input('fundraiser_code'));
     }
 
     do {

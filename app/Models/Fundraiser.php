@@ -18,4 +18,16 @@ class Fundraiser extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public static function idFromCode($code): ?int
+    {
+        $normalized = strtoupper(trim((string) $code));
+        if ($normalized === '') {
+            return null;
+        }
+
+        $id = static::query()->where('code', $normalized)->value('id');
+
+        return $id ? (int) $id : null;
+    }
 }

@@ -298,6 +298,7 @@ public function handleMidtransCallback(Request $request)
             'success' => 1,
             'user_id' => $billing->user_id,
             'campaign_id' => $billing->campaign_id,
+            'fundraiser_id' => $billing->category === 'campaign' ? $billing->fundraiser_id : null,
             'wakaf_id' => $billing->wakaf_id,
             'zakat_id' => $billing->zakat_id,
             'infak_id' => $billing->infak_id,
