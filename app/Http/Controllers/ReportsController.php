@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reports;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class ReportsController extends Controller
 {
@@ -12,13 +12,20 @@ class ReportsController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'file' => 'required|mimes:pdf|max:2048',
+            'thumbnail' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'file' => 'required|mimes:pdf|max:10240',
         ]);
+
+        $thumbnailUrl = Cloudinary::upload(
+            $request->file('thumbnail')->getRealPath(),
+            ['folder' => 'report_thumbnails']
+        )->getSecurePath();
 
         $filePath = $request->file('file')->store('reports', 'public');
 
         $reports = Reports::create([
             'title' => $request->title,
+            'thumbnail' => $thumbnailUrl,
             'file_path' => $filePath,
         ]);
 
@@ -30,20 +37,10 @@ class ReportsController extends Controller
 
     public function index(Request $request)
     {
-        $month = $request->query('month');
-        $year = $request->query('year');
-        $query = Reports::query();
-
-        if ($month && $year) {
-            $query->whereMonth('created_at', $month)
-                  ->whereYear('created_at', $year);
-        } elseif ($year) {
-            $query->whereYear('created_at', $year);
-        } elseif ($month) {
-            $query->whereMonth('created_at', $month);
-        }
-
-        $reports = $query->get();
+        $reports = Reports::query()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
 
         return response()->json($reports);
     }

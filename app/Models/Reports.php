@@ -9,5 +9,9 @@ class Reports extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'file_path'];
+    protected $fillable = [
+        'title',
+        'thumbnail',
+        'file_path',
+    ];
 }
