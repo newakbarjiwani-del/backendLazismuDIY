@@ -88,6 +88,73 @@ class FundraiserController extends Controller
         ]);
     }
 
+    public function byCampaign($campaignId)
+    {
+        $fundraiserIds = DB::table('transactions')
+            ->where('campaign_id', $campaignId)
+            ->where('success', 1)
+            ->where('category', 'campaign')
+            ->whereNotNull('fundraiser_id')
+            ->distinct()
+            ->pluck('fundraiser_id');
+
+        $items = [];
+        foreach ($fundraiserIds as $fundraiserId) {
+            $fundraiser = Fundraiser::with('user')->find($fundraiserId);
+            if (!$fundraiser) {
+                continue;
+            }
+
+            $rows = $this->successfulRows($fundraiserId, $campaignId);
+            $summary = $this->summarize($rows);
+            $items[] = [
+                'name' => $fundraiser->user->name ?? '',
+                'code' => $fundraiser->code,
+                'donor_count' => $summary['donor_count'],
+                'total_amount' => $summary['total_amount'],
+            ];
+        }
+
+        usort($items, function ($a, $b) {
+            return ($b['total_amount'] <=> $a['total_amount'])
+                ?: ($b['donor_count'] <=> $a['donor_count']);
+        });
+
+        return response()->json([
+            'campaign_id' => (int) $campaignId,
+            'data' => $items,
+        ]);
+    }
+
+    public function index()
+    {
+        $fundraisers = Fundraiser::with('user')->orderByDesc('id')->get();
+        $data = [];
+
+        foreach ($fundraisers as $fundraiser) {
+            $rows = $this->successfulRows($fundraiser->id);
+            $summary = $this->summarize($rows);
+
+            $data[] = [
+                'id' => $fundraiser->id,
+                'code' => $fundraiser->code,
+                'name' => $fundraiser->user->name ?? '',
+                'phone_number' => $fundraiser->user->phone_number ?? '',
+                'donor_count' => $summary['donor_count'],
+                'total_amount' => $summary['total_amount'],
+                'campaigns' => $this->campaignBreakdown($rows),
+                'created_at' => optional($fundraiser->created_at)->toDateTimeString(),
+            ];
+        }
+
+        usort($data, function ($a, $b) {
+            return ($b['total_amount'] <=> $a['total_amount'])
+                ?: ($b['donor_count'] <=> $a['donor_count']);
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
     private function userIdFromRequest(Request $request)
     {
         $authHeader = $request->header('Authorization');
@@ -143,6 +210,10 @@ class FundraiserController extends Controller
             $grouped[$row->campaign_id][] = $row;
         }
 
+        if ($grouped === []) {
+            return [];
+        }
+
         $names = Campaign::whereIn('id', array_keys($grouped))->pluck('campaign_name', 'id');
         $campaigns = [];
 
@@ -155,6 +226,10 @@ class FundraiserController extends Controller
                 'total_amount' => $summary['total_amount'],
             ];
         }
+
+        usort($campaigns, function ($a, $b) {
+            return $b['total_amount'] <=> $a['total_amount'];
+        });
 
         return $campaigns;
     }

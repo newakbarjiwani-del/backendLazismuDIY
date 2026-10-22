@@ -86,6 +86,8 @@ Route::get('users/{id}', [UserController::class, 'show']);
 Route::post('/fundraiser/register', [FundraiserController::class, 'register']);
 Route::get('/fundraiser/me', [FundraiserController::class, 'me']);
 Route::get('/fundraiser/stats', [FundraiserController::class, 'stats']);
+Route::get('/fundraiser/list', [FundraiserController::class, 'index']);
+Route::get('/fundraiser/by-campaign/{campaignId}', [FundraiserController::class, 'byCampaign']);
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
