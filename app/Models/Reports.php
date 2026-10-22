@@ -13,5 +13,6 @@ class Reports extends Model
         'title',
         'thumbnail',
         'file_path',
+        'drive_link',
     ];
 }
