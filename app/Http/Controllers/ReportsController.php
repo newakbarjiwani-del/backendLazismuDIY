@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Reports;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ReportsController extends Controller
@@ -63,6 +64,22 @@ class ReportsController extends Controller
             ->get();
 
         return response()->json($reports);
+    }
+
+    public function destroy($id)
+    {
+        $report = Reports::find($id);
+        if (!$report) {
+            return response()->json(['message' => 'Laporan tidak ditemukan'], 404);
+        }
+
+        if (!empty($report->file_path) && Storage::disk('public')->exists($report->file_path)) {
+            Storage::disk('public')->delete($report->file_path);
+        }
+
+        $report->delete();
+
+        return response()->json(['message' => 'Laporan berhasil dihapus']);
     }
 
     private function isGoogleDriveLink(string $url): bool

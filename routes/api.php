@@ -98,6 +98,7 @@ Route::post('login-admin', [AuthController::class, 'loginAdmin']);
 
 Route::post('/upload-report', [ReportsController::class, 'upload']);
 Route::get('/get-report', [ReportsController::class, 'index']);
+Route::delete('/delete-report/{id}', [ReportsController::class, 'destroy']);
 
 Route::get('/transactions-donatur', [TransactionController::class, 'getUserTransactions']);
 Route::get('/transactions-donatur/summary', [TransactionController::class, 'getTransactionSummary']);
