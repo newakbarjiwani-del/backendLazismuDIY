@@ -16,3 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('indexMidtrans');
 });
+
+Route::get('/og/campaign/{id}', [\App\Http\Controllers\OgCampaignController::class, 'show'])
+    ->whereNumber('id');
+Route::get('/og/campaign/{id}/json', [\App\Http\Controllers\OgCampaignController::class, 'json'])
+    ->whereNumber('id');
