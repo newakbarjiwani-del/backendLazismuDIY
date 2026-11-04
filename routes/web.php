@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\OgCampaignController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +16,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('indexMidtrans');
 });
-
-// Open Graph untuk crawler WhatsApp/Facebook (meta dari DB).
-Route::get('/og/campaign/{id}', [OgCampaignController::class, 'show'])
-    ->whereNumber('id');
